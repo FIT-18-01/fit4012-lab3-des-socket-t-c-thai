@@ -38,7 +38,7 @@ grep -qi "Task division" README.md || { echo "[FAIL] README thieu Task division"
 grep -qi "Demo roles" README.md || { echo "[FAIL] README thieu Demo roles"; exit 1; }
 
 echo "[CHECK] Kiem tra README da khai bao du 2 thanh vien va phan cong..."
-for token in; do
+for token in TODO_MEMBER_1 TODO_MEMBER_1_ID TODO_MEMBER_2 TODO_MEMBER_2_ID TODO_ROLE_MEMBER_1 TODO_ROLE_MEMBER_2 TODO_SHARED_WORK TODO_DEMO_ROLE_1 TODO_DEMO_ROLE_2 TODO_DEMO_ROLE_SHARED; do
   if grep -q "$token" README.md; then
     echo "[FAIL] README van con placeholder $token"
     exit 1
@@ -47,8 +47,8 @@ done
 
 echo "[CHECK] Kiem tra cac file OBE co con placeholder khong..."
 for doc in report-1page.md threat-model-1page.md peer-review-response.md; do
-  if grep -q  "$doc"; then
-    echo "[FAIL] $doc van con
+  if grep -qi "TODO\|PLACEHOLDER" "$doc"; then
+    echo "[FAIL] $doc van con placeholder"
     exit 1
   fi
 done
