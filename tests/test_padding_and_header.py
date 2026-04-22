@@ -10,8 +10,8 @@ def unpad(data: bytes) -> bytes:
     pad_len = data[-1]
     return data[:-pad_len]
 def encrypt_des_cbc(data: bytes):
-    key = get_random_bytes(8)   # DES key = 8 bytes
-    iv = get_random_bytes(8)    # IV = 8 bytes
+    key = get_random_bytes(8)   
+    iv = get_random_bytes(8)  
 
     cipher = DES.new(key, DES.MODE_CBC, iv)
     cipher_bytes = cipher.encrypt(pad(data))
