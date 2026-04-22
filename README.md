@@ -12,10 +12,10 @@ Bài lab bám theo luồng hệ thống trong file hướng dẫn: Sender tạo 
 - Khi demo, giảng viên có thể hỏi chéo bất kỳ thành viên nào về **sender**, **receiver**, **DES-CBC**, **padding**, **threat model** và **ethics**.
 
 ## Team members
-- **Thành viên 1**:Vũ Hồng Sơn - MSSV: 1871020506
+- **Thành viên 1**: Vũ Hồng Sơn - MSSV: 1871020506
 - **Thành viên 2**: Phạm Văn Chung - MSSV: 1871020094
 
-## Task division
+## Task divisiongit add README.md
 ## Task division
 - **Thành viên 1 phụ trách chính**: viết conftest, test_padding_and_header, test_sender_receiver_contract, report-1page.md
 - **Thành viên 2 phụ trách chính**: viết test_sender_receiver_local, test_tamper_negative, test_wrong_key_negative, peer-review-response.md, threat-model-1page.md
@@ -26,6 +26,20 @@ Bài lab bám theo luồng hệ thống trong file hướng dẫn: Sender tạo 
 - **Bạn nào demo Sender / gói tin / log gửi**: Vũ Hồng Sơn
 - **Bạn nào demo Receiver / giải mã / log nhận**: Phạm Văn Chung
 - **Cả hai cùng trả lời threat model và ethics**: Cả hai thành viên
+=======
+- **Thành viên 1**:  
+- **Thành viên 2**: 
+
+## Task division
+- **Thành viên 1 phụ trách chính**: 
+- **Thành viên 2 phụ trách chính**:
+- **Phần làm chung**: 
+
+## Demo roles
+- **Bạn nào demo Sender / gói tin / log gửi**: 
+- **Bạn nào demo Receiver / giải mã / log nhận**: 
+- **Cả hai cùng trả lời threat model và ethics**: 
+>>>>>>> 3378b58 (remove TODO)
 
 ## Mục tiêu học tập
 - Hiểu luồng hoạt động của hệ thống Sender/Receiver qua TCP socket.
@@ -116,7 +130,7 @@ CI sẽ kiểm tra:
 - chạy được kiểm thử local sender/receiver
 - có negative test cho **tamper** và **wrong key**
 - `README.md` đã khai báo **2 thành viên**, **phân công**, **vai trò demo**
-- các file `report-1page.md`, `threat-model-1page.md`, `peer-review-response.md` không còn dòng `TODO_STUDENT`
+- các file `report-1page.md`, `threat-model-1page.md`, `peer-review-response.md` không còn dòng `
 - thư mục `logs/` có ít nhất 1 file log thật
 
 Nếu CI đỏ, đừng hoảng. Cứ xem nó như một trợ giảng hơi khó tính nhưng vẫn muốn bạn qua môn.
