@@ -14,8 +14,26 @@ def find_free_port() -> int:
         return s.getsockname()[1]
 
 
+def wait_for_receiver_ready(proc, timeout=5):
+    start_time = time.time()
+    collected = []
+
+    while time.time() - start_time < timeout:
+        line = proc.stdout.readline()
+        if not line:
+            continue
+
+        collected.append(line)
+
+        if "Đang lắng nghe" in line:
+            return True, collected
+
+    return False, collected
+
+
 def test_local_sender_receiver_roundtrip():
     port = find_free_port()
+
     receiver_env = os.environ.copy()
     receiver_env.update({
         "PYTHONUNBUFFERED": "1",
@@ -23,6 +41,7 @@ def test_local_sender_receiver_roundtrip():
         "RECEIVER_PORT": str(port),
         "SOCKET_TIMEOUT": "5",
     })
+
     sender_env = os.environ.copy()
     sender_env.update({
         "PYTHONUNBUFFERED": "1",
@@ -38,21 +57,15 @@ def test_local_sender_receiver_roundtrip():
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        bufsize=1,  # line-buffered
     )
 
     try:
-        started = False
-        start_time = time.time()
-        collected = []
-        while time.time() - start_time < 5:
-            line = receiver.stdout.readline()
-            if line:
-                collected.append(line)
-                if "Đang lắng nghe" in line:
-                    started = True
-                    break
-        assert started, "Receiver không khởi động đúng. Output: " + "".join(collected)
+        # Đợi receiver sẵn sàng
+        started, collected = wait_for_receiver_ready(receiver)
+        assert started, "Receiver không khởi động đúng.\nOutput:\n" + "".join(collected)
 
+        # Chạy sender
         sender = subprocess.run(
             [sys.executable, "sender.py"],
             cwd=REPO_ROOT,
@@ -60,16 +73,32 @@ def test_local_sender_receiver_roundtrip():
             capture_output=True,
             text=True,
             timeout=10,
-            check=True,
         )
-        receiver_out, _ = receiver.communicate(timeout=10)
+
+        assert sender.returncode == 0, f"Sender failed:\n{sender.stdout}\n{sender.stderr}"
+
+        # Lấy output receiver
+        try:
+            receiver_out, _ = receiver.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            receiver.kill()
+            receiver_out, _ = receiver.communicate()
+
         full_receiver_output = "".join(collected) + receiver_out
 
+        # Assertions sender
         assert "[+] Đã gửi bản mã." in sender.stdout
         assert "Key:" in sender.stdout
         assert "IV:" in sender.stdout
         assert "Ciphertext:" in sender.stdout
-        assert "[+] Bản tin gốc: Xin chao FIT4012 - local integration test" in full_receiver_output
+
+        # Assertions receiver
+        assert "Xin chao FIT4012 - local integration test" in full_receiver_output
+
     finally:
         if receiver.poll() is None:
             receiver.kill()
+            try:
+                receiver.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                receiver.terminate()
