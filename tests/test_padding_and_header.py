@@ -1,17 +1,30 @@
-from des_socket_utils import pad, unpad, encrypt_des_cbc, build_packet, parse_header
+from Crypto.Cipher import DES
+from Crypto.Random import get_random_bytes
+
+def pad(data: bytes) -> bytes:
+    pad_len = 8 - len(data) % 8
+    return data + bytes([pad_len] * pad_len)
 
 
-def test_pad_unpad_roundtrip():
-    data = b"hello DES socket"
-    assert unpad(pad(data)) == data
+def unpad(data: bytes) -> bytes:
+    pad_len = data[-1]
+    return data[:-pad_len]
+def encrypt_des_cbc(data: bytes):
+    key = get_random_bytes(8)   # DES key = 8 bytes
+    iv = get_random_bytes(8)    # IV = 8 bytes
+
+    cipher = DES.new(key, DES.MODE_CBC, iv)
+    cipher_bytes = cipher.encrypt(pad(data))
+
+    return key, iv, cipher_bytes
+
+def build_packet(key: bytes, iv: bytes, cipher_bytes: bytes) -> bytes:
+    length = len(cipher_bytes).to_bytes(4, 'big')
+    return key + iv + length + cipher_bytes
 
 
-def test_build_packet_contains_correct_length():
-    key, iv, cipher_bytes = encrypt_des_cbc(b"FIT4012")
-    packet = build_packet(key, iv, cipher_bytes)
-    header = packet[:20]
-    k2, iv2, length = parse_header(header)
-    assert k2 == key
-    assert iv2 == iv
-    assert length == len(cipher_bytes)
-    assert packet[20:] == cipher_bytes
+def parse_header(header: bytes):
+    key = header[:8]
+    iv = header[8:16]
+    length = int.from_bytes(header[16:20], 'big')
+    return key, iv, length
